@@ -4,7 +4,7 @@ A project developed during the course of IoT Algorithms and Services held by Sap
 ## Members
 - > Luca Di Carlo [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/luca-di-carlo-730168274)
 - > Gianmarco Gallo [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/gianmarco-gallo-0317aa244)
-- > Linda Labonia [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?logo=linkedin&logoColor=white)](No account)
+- > Linda Labonia ![No LinkedIn](https://img.shields.io/badge/LinkedIn-Not_Available-lightgrey.svg?logo=linkedin&logoColor=gray)
 
 ## Abstract
 FruIoT is an IoT edge-computing solution designed to reduce produce waste in retail environments. Instead of relying on late-stage visual inspections, the system uses gas and environmental sensors to monitor the invisible chemical microclimate of supermarket shelves. A machine learning model analyzes ethylene, VOCs, temperature, and humidity to classify the fruit's ripening stage in real-time. When a critical state is detected, the edge node automatically triggers RGB leds and digital price discounts to sell the produce before it spoils.
