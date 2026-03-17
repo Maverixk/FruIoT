@@ -7,7 +7,7 @@ A project developed during the course of IoT Algorithms and Services held by Sap
 - > Linda Labonia ![No LinkedIn](https://img.shields.io/badge/LinkedIn-Not_Available-lightgrey.svg?logo=linkedin&logoColor=gray)
 
 ## Abstract
-FruIoT is an IoT edge-computing solution designed to reduce produce waste in retail environments. Instead of relying on late-stage visual inspections, the system uses gas and environmental sensors to monitor the invisible chemical microclimate of supermarket shelves. A machine learning model analyzes ethylene, VOCs, temperature, and humidity to classify the fruit's ripening stage in real-time. When a critical state is detected, the edge node automatically triggers RGB leds and digital price discounts to sell the produce before it spoils.
+FruIoT is a battery-powered edge-IoT system for the early detection of fruit spoilage. By combining gas/VOC sensing with temperature and humidity monitoring, the node captures the local microclimate around produce and runs on-device ML inference to detect critical deterioration stages before visible damage appears. FruIoT is intended to support timely interventions in retail and storage settings, reducing food waste and limiting losses due to late-stage deterioration.
 
 ## Deliveries
 
