@@ -15,7 +15,7 @@
 #include "heltec.h"
 
 // Moduli del progetto
-#include "../include/config.h"
+#include "config.h"
 #include "secrets.h"
 #include "sensors/sensors.h"
 #include "network/network.h"
@@ -38,13 +38,33 @@ void setup() {
     display::init();
     display::showMessage("FruIoT", "Welcome to the final show...");
     // --- Fase 2: Connessione Wi-Fi ---
-    // --- Fase 3: Lettura sensori ---
+    // --- Fase 3: Inizializzazione e lettura sensori ---
+
+    // forzare la ricalibrazione completa al primo utilizzo, commentare dopo
+    //sensors::resetMQ135Calibration(); 
+    // init() gestisce warm-up e calibrazione R0 secondo MQ135_WARMUP_STRATEGY
+    sensors::init();
+ 
+    sensors::SensorData data = sensors::poll();
+
+    // --- Stampa dati sensore ---
+    if (data.mq135Ok) {
+        Serial.printf("[main] CO2: %.1f ppm\n", data.mq135CO2ppm);
+    } else {
+        Serial.println("[main] ERRORE: lettura MQ135 fallita.");
+    }
+
     // --- Fase 4: Mostra dati su display ---
     // --- Fase 5: Invio dati a ThingSpeak --- 
     // --- Fase 6: Deep Sleep ---
+    Serial.println("[main] Entro in deep sleep...");
+    Serial.flush(); // svuota il buffer Serial prima di dormire
+    esp_sleep_enable_timer_wakeup(SLEEP_INTERVAL_MINUTES * 60 * uS_TO_S_FACTOR);
+    esp_deep_sleep_start();
+
 }
 
 void loop() {
-    // Con il Deep Sleep, loop() non viene mai raggiunto.
-    // L'ESP32 si riavvia sempre da setup() al wakeup.
+    // Non raggiunto: il deep sleep riavvia sempre da setup().
+    // Richiesto dal framework Arduino per la compilazione.
 }
