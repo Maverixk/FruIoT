@@ -41,17 +41,26 @@ void setup() {
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
     // forzare la ricalibrazione completa al primo utilizzo, commentare dopo
-    //sensors::resetMQ135Calibration(); 
+    sensors::resetMQ135Calibration(); 
     // init() gestisce warm-up e calibrazione R0 secondo MQ135_WARMUP_STRATEGY
     sensors::init();
  
     sensors::SensorData data = sensors::poll();
 
     // --- Stampa dati sensore ---
+
+    // --- MQ135 ---
     if (data.mq135Ok) {
         Serial.printf("[main] CO2: %.1f ppm\n", data.mq135CO2ppm);
     } else {
         Serial.println("[main] ERRORE: lettura MQ135 fallita.");
+    }
+
+    // --- DHT22 ---
+    if (data.dhtOk) {
+        Serial.printf("[main] Clima: %.1f °C | Umidita': %.1f %%\n", data.temperatureC, data.humidityPct);
+    } else {
+        Serial.println("[main] ERRORE: lettura DHT22 fallita.");
     }
 
     // --- Fase 4: Mostra dati su display ---

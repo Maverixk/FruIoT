@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // --- PINOUT SENSORI ---
-#define DHT_PIN         21  // TODO: Modificare con il pin corretto
+#define DHT_PIN         5  // Pin GPIO 5 per il DHT22 sulla scheda Heltec V3
 #define DHT_TYPE        DHT22
 
 #define MQ135_PIN       4   // Pin ADC (GPIO4) per la scheda Heltec V3
