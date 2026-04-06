@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 // --- PINOUT SENSORI ---
-#define DHT_PIN         21  // TODO: Modificare con il pin corretto
+#define DHT_PIN         5  // TODO: Modificare con il pin corretto
 #define DHT_TYPE        DHT22
 
 #define MQ135_PIN       4   // Pin ADC (GPIO4) per la scheda Heltec V3
@@ -38,7 +38,7 @@
 #define WARMUP_SHORT  1
 #define WARMUP_SKIP   2
  
-#define MQ135_WARMUP_STRATEGY   WARMUP_FULL   // <-- cambia qui per i test
+#define MQ135_WARMUP_STRATEGY   WARMUP_SHORT   // <-- cambia qui per i test
  
 // Durate warm-up (ms)
 #define MQ135_WARMUP_FULL_MS    90000UL
