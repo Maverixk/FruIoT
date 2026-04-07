@@ -19,9 +19,9 @@ struct SensorData {
     bool   mq135Ok;
 
     // --- DHT22 (decommentare quando disponibile) ---
-    // float temperatureC;
-    // float humidityPct;
-    // bool  dhtOk;
+    float temperatureC;
+    float humidityPct;
+    bool  dhtOk;
 };
 
 void init();

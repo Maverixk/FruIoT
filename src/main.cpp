@@ -37,6 +37,7 @@ void setup() {
     // --- Fase 1: Inizializzazione moduli ---
     display::init();
     display::showMessage("FruIoT", "Welcome to the final show...");
+    power::init();
     // --- Fase 2: Connessione Wi-Fi ---
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
@@ -48,10 +49,28 @@ void setup() {
     sensors::SensorData data = sensors::poll();
 
     // --- Stampa dati sensore ---
+
+    // --- MQ135 ---
     if (data.mq135Ok) {
         Serial.printf("[main] CO2: %.1f ppm\n", data.mq135CO2ppm);
     } else {
         Serial.println("[main] ERRORE: lettura MQ135 fallita.");
+    }
+
+    // --- DHT22 ---
+    if (data.dhtOk) {
+        Serial.printf("[main] Clima: %.1f °C | Umidita': %.1f %%\n", data.temperatureC, data.humidityPct);
+    } else {
+        Serial.println("[main] ERRORE: lettura DHT22 fallita.");
+    }
+
+    // --- INA219 (Power Monitor) ---
+    power::PowerData pwr = power::readINA219();
+    if (pwr.ok) {
+        Serial.printf("[main] INA219: %.2f V | %.2f mA | %.2f mW\n",
+                      pwr.busVoltage_V, pwr.current_mA, pwr.power_mW);
+    } else {
+        Serial.println("[main] ERRORE: lettura INA219 fallita.");
     }
 
     // --- Fase 4: Mostra dati su display ---
