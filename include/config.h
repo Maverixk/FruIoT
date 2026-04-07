@@ -7,6 +7,11 @@
 
 #define MQ135_PIN       4   // Pin ADC (GPIO4) per la scheda Heltec V3
 
+// --- INA219 (Power Monitor) ---
+#define INA219_SDA      6       // Pin SDA per il bus I2C dell'INA219
+#define INA219_SCL      7       // Pin SCL per il bus I2C dell'INA219
+#define INA219_I2C_ADDR 0x40    // Indirizzo I2C default (A0=GND, A1=GND)
+
 // --- TIMING E SLEEP ---
 #define SLEEP_INTERVAL_MINUTES  5
 #define uS_TO_S_FACTOR 1000000ULL  // Fattore di conversione da microsecondi a secondi
@@ -38,7 +43,7 @@
 #define WARMUP_SHORT  1
 #define WARMUP_SKIP   2
  
-#define MQ135_WARMUP_STRATEGY   WARMUP_FULL   // <-- cambia qui per i test
+#define MQ135_WARMUP_STRATEGY   1  // <-- cambia qui per i test
  
 // Durate warm-up (ms)
 #define MQ135_WARMUP_FULL_MS    90000UL

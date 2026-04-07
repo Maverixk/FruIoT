@@ -37,11 +37,12 @@ void setup() {
     // --- Fase 1: Inizializzazione moduli ---
     display::init();
     display::showMessage("FruIoT", "Welcome to the final show...");
+    power::init();
     // --- Fase 2: Connessione Wi-Fi ---
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
     // forzare la ricalibrazione completa al primo utilizzo, commentare dopo
-    sensors::resetMQ135Calibration(); 
+    //sensors::resetMQ135Calibration(); 
     // init() gestisce warm-up e calibrazione R0 secondo MQ135_WARMUP_STRATEGY
     sensors::init();
  
@@ -61,6 +62,15 @@ void setup() {
         Serial.printf("[main] Clima: %.1f °C | Umidita': %.1f %%\n", data.temperatureC, data.humidityPct);
     } else {
         Serial.println("[main] ERRORE: lettura DHT22 fallita.");
+    }
+
+    // --- INA219 (Power Monitor) ---
+    power::PowerData pwr = power::readINA219();
+    if (pwr.ok) {
+        Serial.printf("[main] INA219: %.2f V | %.2f mA | %.2f mW\n",
+                      pwr.busVoltage_V, pwr.current_mA, pwr.power_mW);
+    } else {
+        Serial.println("[main] ERRORE: lettura INA219 fallita.");
     }
 
     // --- Fase 4: Mostra dati su display ---
