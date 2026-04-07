@@ -13,7 +13,7 @@ namespace sensors {
 
     void init() {
         mq135::init();
-        dht22::init(); // decommentare quando disponibile
+        dht22::init(); 
     }
 
     SensorData poll() {
@@ -24,7 +24,7 @@ namespace sensors {
         data.mq135Ratio  = mq.ratio;
         data.mq135Ok     = mq.ok;
 
-        dht22::Data dht = dht22::poll(); // decommentare quando disponibile
+        dht22::Data dht = dht22::poll(); 
         data.temperatureC = dht.temperatureC;
         data.humidityPct  = dht.humidityPct;
         data.dhtOk        = dht.ok;
