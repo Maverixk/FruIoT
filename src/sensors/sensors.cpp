@@ -11,29 +11,29 @@
  */
 namespace sensors {
 
-void init() {
-    mq135::init();
-    dht22::init(); 
+    void init() {
+        mq135::init();
+        dht22::init(); // decommentare quando disponibile
+    }
+
+    SensorData poll() {
+        SensorData data{};
+
+        mq135::Data mq = mq135::poll();
+        data.mq135CO2ppm = mq.co2ppm;
+        data.mq135Ratio  = mq.ratio;
+        data.mq135Ok     = mq.ok;
+
+        dht22::Data dht = dht22::poll(); // decommentare quando disponibile
+        data.temperatureC = dht.temperatureC;
+        data.humidityPct  = dht.humidityPct;
+        data.dhtOk        = dht.ok;
+
+        return data;
+    }
+
+    void resetMQ135Calibration() {
+        mq135::resetCalibration();
+    }
+
 }
-
-SensorData poll() {
-    SensorData data{};
-
-    mq135::Data mq = mq135::poll();
-    data.mq135CO2ppm = mq.co2ppm;
-    data.mq135Ratio  = mq.ratio;
-    data.mq135Ok     = mq.ok;
-
-    dht22::Data dht = dht22::poll(); // decommentare quando disponibile
-    data.temperatureC = dht.temperatureC;
-    data.humidityPct  = dht.humidityPct;
-    data.dhtOk        = dht.ok;
-
-    return data;
-}
-
-void resetMQ135Calibration() {
-    mq135::resetCalibration();
-}
-
-} // namespace sensors

@@ -39,10 +39,15 @@ void setup() {
     display::showMessage("FruIoT", "Welcome to the final show...");
     power::init();
     // --- Fase 2: Connessione Wi-Fi ---
+    network::init();
+    network::connect_to_wifi();
+    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LUCA);
+
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
     // forzare la ricalibrazione completa al primo utilizzo, commentare dopo
     //sensors::resetMQ135Calibration(); 
+    
     // init() gestisce warm-up e calibrazione R0 secondo MQ135_WARMUP_STRATEGY
     sensors::init();
  
@@ -52,14 +57,14 @@ void setup() {
 
     // --- MQ135 ---
     if (data.mq135Ok) {
-        Serial.printf("[main] CO2: %.1f ppm\n", data.mq135CO2ppm);
+        Serial.printf("[main] CO2: %.2f ppm\n", data.mq135CO2ppm);
     } else {
         Serial.println("[main] ERRORE: lettura MQ135 fallita.");
     }
 
-    // --- DHT22 ---
     if (data.dhtOk) {
-        Serial.printf("[main] Clima: %.1f °C | Umidita': %.1f %%\n", data.temperatureC, data.humidityPct);
+        Serial.printf("[main] Temperature: %.2f °C\n", data.temperatureC);
+        Serial.printf("[main] Humidity: %.2f %%\n", data.humidityPct);
     } else {
         Serial.println("[main] ERRORE: lettura DHT22 fallita.");
     }
@@ -75,6 +80,19 @@ void setup() {
 
     // --- Fase 4: Mostra dati su display ---
     // --- Fase 5: Invio dati a ThingSpeak --- 
+    network::DataPacket packet = {
+        data.mq135CO2ppm, 
+        data.temperatureC,
+        data.humidityPct
+    };
+    int response = network::send_via_wifi(packet);
+    if(response == 200) {
+        Serial.println("[network] Data successfully delivered to ThingSpeak channel!");
+    }
+    else {
+        Serial.println("[network] ThingSpeak channel update failed with HTTP error code " + String(response));
+    }
+
     // --- Fase 6: Deep Sleep ---
     Serial.println("[main] Entro in deep sleep...");
     Serial.flush(); // svuota il buffer Serial prima di dormire

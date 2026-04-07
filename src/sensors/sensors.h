@@ -12,31 +12,31 @@
  */
 namespace sensors {
 
-struct SensorData {
-    // --- MQ135 ---
-    float  mq135CO2ppm;  
-    float  mq135Ratio;   
-    bool   mq135Ok;
+    struct SensorData {
+        // --- MQ135 ---
+        float  mq135CO2ppm;  
+        float  mq135Ratio;   
+        bool   mq135Ok;
 
-    // --- DHT22 (decommentare quando disponibile) ---
-    float temperatureC;
-    float humidityPct;
-    bool  dhtOk;
-};
+        // --- DHT22 ---
+        float temperatureC;
+        float humidityPct;
+        bool  dhtOk;
+    };
 
-void init();
+    void init();
 
-/**
- * Legge tutti i sensori e restituisce i dati aggregati.
- * Chiamare solo dopo init().
- */
-SensorData poll();
+    /**
+     * Legge tutti i sensori e restituisce i dati aggregati.
+     * Chiamare solo dopo init().
+     */
+    SensorData poll();
 
-/**
- * Forza la ricalibrazione di R0 dell'MQ135 al prossimo avvio.
- * Utile se il sensore è invecchiato o spostato in ambiente diverso.
- */
-void resetMQ135Calibration();
+    /**
+     * Forza la ricalibrazione di R0 dell'MQ135 al prossimo avvio.
+     * Utile se il sensore è invecchiato o spostato in ambiente diverso.
+     */
+    void resetMQ135Calibration();
 
 } // namespace sensors
 
