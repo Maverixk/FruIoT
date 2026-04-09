@@ -11,9 +11,11 @@
  *
  */
 namespace sensors {
+    
 
     struct SensorData {
         // --- MQ135 ---
+        int mq135Raw;
         float  mq135CO2ppm;  
         float  mq135Ratio;   
         bool   mq135Ok;
@@ -37,6 +39,13 @@ namespace sensors {
      * Utile se il sensore è invecchiato o spostato in ambiente diverso.
      */
     void resetMQ135Calibration();
+
+    void forceMQ135R0(float r0);
+
+    int getWarmupNumSamples();
+    int getPollingNumSamples();
+    float getWarmupCurrentSample(int index);
+    float getPollingCurrentSample(int index);
 
 } // namespace sensors
 

@@ -9,6 +9,7 @@ namespace dht22 {
 
     void init() {
         dht.begin();
+        delay(2000); // DHT22 richiede 2s prima della prima lettura
         Serial.println("[DHT22] Pronto.");
     }
 

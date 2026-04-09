@@ -1,5 +1,6 @@
 #include "mq135.h"
 #include "config.h"
+#include "power/power.h"
 #include <Arduino.h>
 #include <Preferences.h>
 #include <math.h>
@@ -15,6 +16,13 @@ namespace mq135 {
     static float       s_r0          = -1.0f;  // R0 calibrato (kΩ); -1 = non ancora calibrato
     static bool        s_r0_from_nvs = false;  // true se R0 è stato caricato dalla memoria NVS
     static Preferences s_prefs;               // interfaccia alla memoria NVS dell'ESP32
+
+    const int max_samples = 100;  // Numero massimo di campioni di corrente
+    float warmup_current_samples[max_samples];  // Array per memorizzare i campioni di corrente durante il warm-up
+    float polling_current_samples[max_samples];  // Array per memorizzare i campioni di corrente durante il polling
+    int warmup_num_samples = 0;  // Numero effettivo di campioni raccolti durante il warm-up
+    int polling_num_samples = 0;  // Numero effettivo di campioni raccolti durante il polling
+
 
     // ─────────────────────────────────────────────────────────────────────────────
     // Funzioni private
@@ -125,8 +133,8 @@ namespace mq135 {
      * temperatura operativa prima che le letture siano affidabili.
      *
      * La durata dipende dalla strategia scelta in config.h:
-     *   WARMUP_FULL  → 90s (primo avvio, massima precisione)
-     *   WARMUP_SHORT → 30s (riavvio da deep sleep, R0 già noto)
+     *   WARMUP_FULL  → 90s 
+     *   WARMUP_SHORT → 30s 
      *   WARMUP_SKIP  → 0s  (minimo consumo, precisione ridotta)
      *
      * Il Serial stampa un aggiornamento ogni 5 secondi per non intasare il buffer.
@@ -137,11 +145,20 @@ namespace mq135 {
         unsigned long start      = millis();
         unsigned long last_print = 0;
         while (millis() - start < duration_ms) {
+
             if (millis() - last_print >= 5000) {
                 unsigned long remaining = (duration_ms - (millis() - start)) / 1000;
                 Serial.printf("[MQ135]   %lu s rimanenti\n", remaining);
                 last_print = millis();
+
+                // Sensing dell'INA219 ad ogni iterazione del ciclo 
+                power::PowerData pwr = power::readINA219();
+                if (pwr.ok && warmup_num_samples < max_samples) {
+                    warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
+                    Serial.printf("[MQ135] Corrente istantanea (warm-up): %.2f mA\n", pwr.current_mA);
+                }
             }
+
             delay(500); // ogni mezzo secondo controlla se è il momento di stampare l'aggiornamento, ma non intasare il buffer seriale con troppe stampe
         }
         // nel caso peggiore il warm-up è già finito da 499ms prima che il loop se ne accorga,
@@ -265,9 +282,18 @@ namespace mq135 {
         float ratio = rs / s_r0; // RS/R0: >1 aria pulita, <1 presenza di gas
         float co2   = estimateCO2ppm(ratio);
 
+        data.raw    = raw;
         data.co2ppm = co2;
         data.ratio  = ratio;
         data.ok     = true;
+
+        Serial.printf("[MQ135] raw=%d rs=%.3f ratio=%.5f r0=%.3f\n", raw, rs, ratio, s_r0);
+
+        power::PowerData pwr = power::readINA219();
+        if (pwr.ok && polling_num_samples < max_samples) {
+            polling_current_samples[polling_num_samples++] = pwr.current_mA;
+            Serial.printf("[MQ135] Corrente istantanea (polling): %.2f mA\n", pwr.current_mA);
+        }
 
         return data;
     }
@@ -286,6 +312,35 @@ namespace mq135 {
         s_r0          = -1.0f;
         s_r0_from_nvs = false;
         Serial.println("[MQ135] NVS R0 cancellato. Ricalibrazione al prossimo avvio.");
+    }
+
+    void forceR0(float r0) {
+        if (r0 <= 0.0f || isnan(r0) || isinf(r0)) {
+            Serial.println("[MQ135] ERRORE: R0 non valido, scrittura NVS annullata.");
+            return;
+        }
+
+        s_r0 = r0;
+        s_r0_from_nvs = true;
+        saveR0toNVS(r0);
+
+        Serial.printf("[MQ135] R0 forzato manualmente: %.2f kOhm\n", r0);
+    }
+
+    int getWarmupNumSamples() {
+        return warmup_num_samples;
+    }
+
+    int getPollingNumSamples() {
+        return polling_num_samples;
+    }
+
+    float getWarmupCurrentSample(int index) {
+        return warmup_current_samples[index];
+    }
+
+    float getPollingCurrentSample(int index) {
+        return polling_current_samples[index];
     }
 
 } // namespace mq135
