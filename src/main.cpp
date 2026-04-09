@@ -41,18 +41,22 @@ void setup() {
     // --- Fase 2: Connessione Wi-Fi ---
     network::init();
     network::connect_to_wifi();
-    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LUCA);
+    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LINDA);
 
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
     // forzare la ricalibrazione completa al primo utilizzo, commentare dopo
     //sensors::resetMQ135Calibration(); 
+
+    //sensors::forceMQ135R0(18.26f);
     
     // init() gestisce warm-up e calibrazione R0 secondo MQ135_WARMUP_STRATEGY
     sensors::init();
  
+    
     sensors::SensorData data = sensors::poll();
 
+   
     // --- Stampa dati sensore ---
 
     // --- MQ135 ---
@@ -69,21 +73,33 @@ void setup() {
         Serial.println("[main] ERRORE: lettura DHT22 fallita.");
     }
 
-    // --- INA219 (Power Monitor) ---
-    power::PowerData pwr = power::readINA219();
-    if (pwr.ok) {
-        Serial.printf("[main] INA219: %.2f V | %.2f mA | %.2f mW\n",
-                      pwr.busVoltage_V, pwr.current_mA, pwr.power_mW);
-    } else {
-        Serial.println("[main] ERRORE: lettura INA219 fallita.");
+    
+    // Calcola la corrente media durante il warm-up e il polling
+    float total_warmup_current = 0;
+    for (int i = 0; i < sensors::getWarmupNumSamples(); i++) {
+        total_warmup_current += sensors::getWarmupCurrentSample(i);
     }
+    float avg_warmup_current = total_warmup_current / sensors::getWarmupNumSamples();
+    Serial.printf("[main] Corrente media durante warm-up: %.2f mA\n", avg_warmup_current);
 
-    // --- Fase 4: Mostra dati su display ---
-    // --- Fase 5: Invio dati a ThingSpeak --- 
+    float total_polling_current = 0;
+    for (int i = 0; i < sensors::getPollingNumSamples(); i++) {
+        total_polling_current += sensors::getPollingCurrentSample(i);
+    }
+    float avg_polling_current = total_polling_current / sensors::getPollingNumSamples();
+    Serial.printf("[main] Corrente media durante polling: %.2f mA\n", avg_polling_current);
+
+
+
+
+    // --- Fase 4: Invio dati a ThingSpeak --- 
     network::DataPacket packet = {
+        (float)data.mq135Raw,
         data.mq135CO2ppm, 
         data.temperatureC,
-        data.humidityPct
+        data.humidityPct,
+        avg_warmup_current,
+        avg_polling_current
     };
     int response = network::send_via_wifi(packet);
     if(response == 200) {
@@ -93,11 +109,13 @@ void setup() {
         Serial.println("[network] ThingSpeak channel update failed with HTTP error code " + String(response));
     }
 
-    // --- Fase 6: Deep Sleep ---
+
+    // --- Fase 5: Deep Sleep ---
     Serial.println("[main] Entro in deep sleep...");
     Serial.flush(); // svuota il buffer Serial prima di dormire
     esp_sleep_enable_timer_wakeup(SLEEP_INTERVAL_MINUTES * 60 * uS_TO_S_FACTOR);
     esp_deep_sleep_start();
+    
 
 }
 

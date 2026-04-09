@@ -8,6 +8,7 @@
 namespace mq135 {
 
 struct Data {
+    int raw;    // lettura ADC grezza (0–4095)
     float  co2ppm;  // stima CO2 in ppm 
     float  ratio;   // RS / R0: >1 aria pulita, <1 presenza di gas
     bool   ok;
@@ -38,5 +39,12 @@ Data poll();
  * Utile se il sensore è invecchiato o spostato in un ambiente diverso.
  */
 void resetCalibration();
+
+void forceR0(float r0);
+
+int getWarmupNumSamples();
+int getPollingNumSamples();
+float getWarmupCurrentSample(int index);
+float getPollingCurrentSample(int index);
 
 } // namespace mq135

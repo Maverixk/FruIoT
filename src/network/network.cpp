@@ -20,7 +20,7 @@ namespace network {
     void connect_to_wifi() {
         if (WiFi.status() != WL_CONNECTED){
             Serial.print("[network] Connecting to WiFi...");
-            WiFi.begin(WIFI_SSID_LUCA, WIFI_PASS_LUCA);
+            WiFi.begin(WIFI_SSID_LINDA, WIFI_PASS_LINDA);
             
             int attempt = 0;
             while (WiFi.status() != WL_CONNECTED && attempt < 20) {
@@ -40,11 +40,14 @@ namespace network {
             Serial.println("[network] Error: WiFi not connected!");
             return -1;
         }
+        
+        ThingSpeak.setField(1, data.mq135Raw);
+        ThingSpeak.setField(2, data.mq135CO2);
+        ThingSpeak.setField(3, data.dht22Temp);
+        ThingSpeak.setField(4, data.dht22Hum);
+        ThingSpeak.setField(5, data.warmup_current);
+        ThingSpeak.setField(6, data.polling_current);
 
-        ThingSpeak.setField(1, data.mq135CO2);
-        ThingSpeak.setField(2, data.dht22Temp);
-        ThingSpeak.setField(3, data.dht22Hum);
-
-        return ThingSpeak.writeFields(SECRET_CH_ID_LUCA, SECRET_WRITE_APIKEY_LUCA);
+        return ThingSpeak.writeFields(SECRET_CH_ID_LINDA, SECRET_WRITE_APIKEY_LINDA);
     }
 }

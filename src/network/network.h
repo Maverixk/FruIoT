@@ -6,9 +6,12 @@
 namespace network {
 
     struct DataPacket {
+        float mq135Raw;
         float mq135CO2;
         float dht22Temp;
         float dht22Hum;
+        float warmup_current;
+        float polling_current;
     } ;
 
     // Sets up Wifi connection with 
