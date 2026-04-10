@@ -16,6 +16,7 @@ FruIoT is a battery-powered edge-IoT system for the early detection of fruit spo
 
 ### Second delivery
 - > [Presentation](./presentations/FruIoT_second_presentation.pdf)
+- > [Dataset](https://data.mendeley.com/datasets/czz68d9fwj/1)
 - > [Youtube video](https://www.youtube.com/watch?v=LVrVi0FOAZs)
   
 ### Third delivery
