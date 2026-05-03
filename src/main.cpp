@@ -41,7 +41,7 @@ void setup() {
     // --- Fase 2: Connessione Wi-Fi ---
     network::init();
     network::connect_to_wifi();
-    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LINDA);
+    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_GIAMMO);
 
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
