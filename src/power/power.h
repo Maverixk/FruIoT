@@ -48,10 +48,6 @@ PowerData readINA219();
  */
 float getBatteryVoltage();
 
-/**
- * Mette l'ESP32 in Deep Sleep per il numero di minuti definito in config.h.
- */
-void goToDeepSleep();
 
 }
 

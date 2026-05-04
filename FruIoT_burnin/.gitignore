@@ -3,7 +3,3 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
-.claude
-
-# Ignora il file con le password e le API Key
-include/secrets.h

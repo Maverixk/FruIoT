@@ -3,22 +3,14 @@
 
 #include <Arduino.h>
 
-/**
- * Modulo sensori — orchestratore.
- *
- * Aggrega i dati di tutti i sensori in SensorData e coordina init() e poll().
- * main.cpp interagisce solo con questo modulo.
- *
- */
 namespace sensors {
-    
 
     struct SensorData {
         // --- MQ135 ---
-        int mq135Raw;
-        float  mq135CO2ppm;  
-        float  mq135Ratio;   
-        bool   mq135Ok;
+        int   mq135Raw;
+        float mq135Rs;
+        float mq135Ratio;
+        bool  mq135Ok;
 
         // --- DHT22 ---
         float temperatureC;
@@ -27,19 +19,9 @@ namespace sensors {
     };
 
     void init();
-
-    /**
-     * Legge tutti i sensori e restituisce i dati aggregati.
-     * Chiamare solo dopo init().
-     */
     SensorData poll();
 
-    /**
-     * Forza la ricalibrazione di R0 dell'MQ135 al prossimo avvio.
-     * Utile se il sensore è invecchiato o spostato in ambiente diverso.
-     */
     void resetMQ135Calibration();
-
     void forceMQ135R0(float r0);
 
     int getWarmupNumSamples();

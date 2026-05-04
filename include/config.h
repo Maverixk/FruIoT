@@ -7,6 +7,9 @@
 
 #define MQ135_PIN       4   // Pin ADC (GPIO4) per la scheda Heltec V3
 
+// --- TRANSISTOR S8050 (alimentazione MQ135) ---
+#define TRANSISTOR_PIN  3   // GPIO3: HIGH = MQ135 alimentato, LOW = MQ135 spento
+
 // --- INA219 (Power Monitor) ---
 #define INA219_SDA      6       // Pin SDA per il bus I2C dell'INA219
 #define INA219_SCL      7       // Pin SCL per il bus I2C dell'INA219
@@ -19,22 +22,9 @@
 // =============================================================================
 // STRATEGIA DI WARM-UP — modificare questa riga per cambiare modalità
 //
-// Le tre opzioni permettono di testare il tradeoff tra precisione e consumo
-// energetico in funzione del duty cycle del deep sleep.
-//
-//   WARMUP_FULL  — 90s di warm-up + calibrazione R0 ad ogni avvio.
-//                  Massima precisione. Usare solo al primo avvio o dopo reset.
-//                  Consumo stimato: ~90s attivo ogni SLEEP_INTERVAL_MINUTES.
-//
-//   WARMUP_SHORT — 30s di warm-up, R0 caricato da NVS (no ricalibrazione).
-//                  Buon compromesso. Letture leggermente meno precise.
-//                  Consumo stimato: ~30s attivo ogni SLEEP_INTERVAL_MINUTES.
-//
+//   WARMUP_FULL  — 90s di warm-up + calibrazione R0 se NVS vuoto.
+//   WARMUP_SHORT — 30s di warm-up, R0 caricato da NVS.
 //   WARMUP_SKIP  — Nessun warm-up. Lettura immediata dopo il boot.
-//                  Minimo consumo energetico. Precisione ridotta:
-//                  l'elemento riscaldante non ha raggiunto Toperativa.
-//                  Utile per stimare il consumo minimo teorico del sistema.
-//                  Consumo stimato: ~2-3s attivo ogni SLEEP_INTERVAL_MINUTES.
 //
 // NOTA: WARMUP_SKIP e WARMUP_SHORT richiedono che R0 sia già salvato in NVS.
 //       Se NVS è vuoto, il sistema forza automaticamente WARMUP_FULL.
@@ -42,47 +32,43 @@
 #define WARMUP_FULL   0
 #define WARMUP_SHORT  1
 #define WARMUP_SKIP   2
- 
+
 #define MQ135_WARMUP_STRATEGY   0  // <-- cambia qui per i test
- 
+
 // Durate warm-up (ms)
 #define MQ135_WARMUP_FULL_MS    90000UL
 #define MQ135_WARMUP_SHORT_MS   30000UL
 
-// ---ADC / PARTITORE ---
+// --- ADC / PARTITORE ---
 #define ADC_MAX_COUNTS      4095.0f
 #define ADC_REF_VOLTAGE     3.3f
 #define MQ135_DIVIDER_RATIO 2.0f    // R1=R2=100kΩ → Vgpio = Vao / 2
 #define MQ135_VCC           5.0f    // alimentazione sensore (V)
 #define MQ135_RL_KOHM       1.0f    // resistenza di carico sulla scheda (kΩ)
 
-
-// Media su più campioni per stabilizzare la lettura del sensore, che può essere rumorosa.
-// Un numero maggiore di campioni migliora la stabilità ma aumenta il tempo di lettura e il consumo.
-// TODO: vedere se calibrarlo
-#define MQ135_SAMPLES       32      
-
 // =============================================================================
-// COEFFICIENTI CO2 — Metodo Gironi (2014)
+// FILTRO A MEDIANA — oversampling + mediana per reiezione spike
 //
-// Fonte: Davide Gironi, "Cheap CO2 meter using the MQ135 sensor with AVR ATmega"
-// https://davidegironi.blogspot.com/2014/01/cheap-co2-meter-using-mq135-sensor-with.html
+// Per ogni lettura MQ135, vengono raccolti MQ135_MEDIAN_WINDOW campioni ADC.
+// I campioni vengono ordinati e si prende il valore centrale (mediana).
+// Usare un numero DISPARI per avere una mediana esatta.
 //
-// Coefficienti A e B ottenuti tramite regressione MATLAB correlando
-// l'uscita raw del MQ135 con un sensore NDIR professionale MHZ14.
-// Formula: co2_ppm = MQ135_CO2_A * (RS / R0) ^ MQ135_CO2_B
+// MQ135_MEDIAN_WINDOW  : dimensione della finestra (numero di campioni)
+// MQ135_SAMPLE_DELAY_MS: ritardo tra un campione e il successivo (ms)
 // =============================================================================
-#define MQ135_CO2_A         56.0820f
-#define MQ135_CO2_B         (-5.9603f)
-#define MQ135_CO2_CLEAN_AIR 420.0f    // CO2 atmosferica attuale (ppm), 2025
-
+#define MQ135_MEDIAN_WINDOW     31
+#define MQ135_SAMPLE_DELAY_MS   2       // stabilizzazione condensatore sample-and-hold dell'ADC, indipendente dalla window
 
 // --- Persistenza R0 tra i riavvii, salvataggio in NVS, memoria non volatile ---
 #define NVS_NAMESPACE       "fruiot"
 #define NVS_KEY_R0          "mq135_r0"
- 
+
 // Parametri calibrazione R0
+// Ogni singola lettura è già filtrata con mediana (vedi MQ135_MEDIAN_WINDOW).
+// La calibrazione ripete questa lettura MQ135_CALIB_SAMPLES volte, distanziate
+// di MQ135_CALIB_DELAY_MS, per catturare la variabilità temporale del sensore
+// (fluttuazioni termiche, rumore a bassa frequenza). R0 = media delle RS.
 #define MQ135_CALIB_SAMPLES     50
-#define MQ135_CALIB_DELAY_MS    200UL
- 
+#define MQ135_CALIB_DELAY_MS    200UL   // UL = unsigned long, necessario per confronti con millis()
+
 #endif // CONFIG_H

@@ -68,8 +68,5 @@ float getBatteryVoltage() {
     return -1.0f;
 }
 
-void goToDeepSleep() {
-    // TODO: implementare deep sleep (attualmente gestito direttamente in main.cpp)
-}
 
 } // namespace power

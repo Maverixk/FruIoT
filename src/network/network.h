@@ -7,23 +7,16 @@ namespace network {
 
     struct DataPacket {
         float mq135Raw;
-        float mq135CO2;
+        float mq135Ratio;
         float dht22Temp;
         float dht22Hum;
         float warmup_current;
         float polling_current;
-    } ;
+    };
 
-    // Sets up Wifi connection with 
     void init();
-
-    // Checks if the Wifi is connected
     bool wifi_connected();
-
-    // Checks if the Wifi connection is active
-    void connect_to_wifi();
-
-    // Sends data to ThingSpeak server via Wifi
+    bool await_wifi(int timeout_ms = 10000);
     int send_via_wifi(DataPacket data);
 
 }
