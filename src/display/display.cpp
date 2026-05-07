@@ -4,8 +4,8 @@
 namespace display {
 
     void init() {
-        // Il display OLED deve esse inizializzato tramite Heltec.begin()
-        // che viene dovrà chiamato nel main.
+        // Il display OLED deve essere inizializzato tramite Heltec.begin()
+        // che verrà chiamato nel main.
         Heltec.display->clear();
         Heltec.display->setFont(ArialMT_Plain_10);
         Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
@@ -29,19 +29,16 @@ namespace display {
         Heltec.display->display();
     }
 
-    void showSensorData(float temp, float humidity, float gasPPM, float batteryV) {
+    void showSensorData(float temp, float humidity, float ratio) {
         Heltec.display->clear();
 
         Heltec.display->setFont(ArialMT_Plain_16);
         Heltec.display->drawString(0, 0, "FruIoT Monitor");
 
         Heltec.display->setFont(ArialMT_Plain_10);
-        Heltec.display->drawString(0, 20, "Temp: " + String(temp, 1) + " C");
-        Heltec.display->drawString(0, 32, "Hum:  " + String(humidity, 1) + " %");
-        Heltec.display->drawString(0, 44, "Gas:  " + String(gasPPM, 1) + " PPM");
-
-        // Icona batteria (semplice testo)
-        Heltec.display->drawString(90, 0, String(batteryV, 1) + "V");
+        Heltec.display->drawString(0, 20, "Temp:  " + String(temp, 1) + " C");
+        Heltec.display->drawString(0, 32, "Hum:   " + String(humidity, 1) + " %");
+        Heltec.display->drawString(0, 44, "Ratio: " + String(ratio, 2));
 
         Heltec.display->display();
     }

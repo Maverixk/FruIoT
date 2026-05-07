@@ -42,11 +42,6 @@ void init();
  */
 PowerData readINA219();
 
-/**
- * Legge la tensione della batteria LiPo dalla Heltec V3.
- * TODO: implementare quando si collegherà la batteria.
- */
-float getBatteryVoltage();
 
 
 }

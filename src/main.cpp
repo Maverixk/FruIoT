@@ -58,6 +58,7 @@ void setup() {
 
     // --- Corrente media warm-up ---
     float avg_warmup_current = 0;
+#if CURRENT_MONITOR == 1
     if (sensors::getWarmupNumSamples() > 0) {
         float total = 0;
         for (int i = 0; i < sensors::getWarmupNumSamples(); i++)
@@ -65,9 +66,11 @@ void setup() {
         avg_warmup_current = total / sensors::getWarmupNumSamples();
         Serial.printf("[main] Corrente media warm-up: %.2f mA\n", avg_warmup_current);
     }
+#endif
 
     // --- Corrente media polling ---
     float avg_polling_current = 0;
+#if CURRENT_MONITOR == 1
     if (sensors::getPollingNumSamples() > 0) {
         float total = 0;
         for (int i = 0; i < sensors::getPollingNumSamples(); i++)
@@ -75,6 +78,7 @@ void setup() {
         avg_polling_current = total / sensors::getPollingNumSamples();
         Serial.printf("[main] Corrente media polling: %.2f mA\n", avg_polling_current);
     }
+#endif
 
     // --- Invio dati a ThingSpeak ---
     network::DataPacket packet = {
@@ -91,6 +95,10 @@ void setup() {
     } else {
         Serial.println("[network] ThingSpeak channel update failed with HTTP error code " + String(response));
     }
+
+    // --- Mostra i dati sul display OLED ---
+    display::showSensorData(data.temperatureC, data.humidityPct, data.mq135Ratio);
+    delay(3000); // Visualizza i dati per 3 secondi prima di spegnersi
 
     // --- Spegnimento e Deep Sleep ---
     display::off();

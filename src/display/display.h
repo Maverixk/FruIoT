@@ -12,7 +12,7 @@ namespace display {
     void showMessage(const String& line1, const String& line2 = "", const String& line3 = "");
 
     // Mostra i dati dei sensori sul display
-    void showSensorData(float temp, float humidity, float gasPPM, float batteryV);
+    void showSensorData(float temp, float humidity, float ratio);
 
     // Spegne il display (prima del deep sleep)
     void off();

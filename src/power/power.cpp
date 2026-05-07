@@ -63,10 +63,7 @@ PowerData readINA219() {
     return data;
 }
 
-float getBatteryVoltage() {
-    // TODO: implementare lettura batteria LiPo dalla Heltec V3
-    return -1.0f;
-}
+
 
 
 } // namespace power
