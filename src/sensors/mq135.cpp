@@ -238,7 +238,13 @@ namespace mq135 {
 
     int getWarmupNumSamples() { return warmup_num_samples; }
     int getPollingNumSamples() { return polling_num_samples; }
-    float getWarmupCurrentSample(int index) { return warmup_current_samples[index]; }
-    float getPollingCurrentSample(int index) { return polling_current_samples[index]; }
+    float getWarmupCurrentSample(int index) {
+        if (index < 0 || index >= warmup_num_samples) return 0.0f;
+        return warmup_current_samples[index];
+    }
+    float getPollingCurrentSample(int index) {
+        if (index < 0 || index >= polling_num_samples) return 0.0f;
+        return polling_current_samples[index];
+    }
 
 } // namespace mq135
