@@ -1,6 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// --- CONFIGURAZIONE GENERALE ---
+#define CURRENT_MONITOR 0  // 0 = disabilitato, 1 = abilitato (misura corrente istantanea durante il polling MQ135)
+
 // --- PINOUT SENSORI ---
 #define DHT_PIN         5  // Pin GPIO 5 per il DHT22 sulla scheda Heltec V3
 #define DHT_TYPE        DHT22

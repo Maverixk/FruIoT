@@ -100,10 +100,14 @@ namespace mq135 {
                 Serial.printf("[MQ135]   %lu s rimanenti\n", remaining);
                 last_print = millis();
 
-                power::PowerData pwr = power::readINA219();
-                if (pwr.ok && warmup_num_samples < max_samples) {
-                    warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
-                }
+                #if CURRENT_MONITOR == 1
+                    // Sensing dell'INA219 ad ogni iterazione del ciclo 
+                    power::PowerData pwr = power::readINA219();
+                    if (pwr.ok && warmup_num_samples < max_samples) {
+                        warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
+                        Serial.printf("[MQ135] Corrente istantanea (warm-up): %.2f mA\n", pwr.current_mA);
+                    }
+                #endif
             }
             delay(500);
         }
@@ -203,6 +207,14 @@ namespace mq135 {
         if (pwr.ok && polling_num_samples < max_samples) {
             polling_current_samples[polling_num_samples++] = pwr.current_mA;
         }
+
+         #if CURRENT_MONITOR == 1
+            power::PowerData pwr = power::readINA219();
+            if (pwr.ok && polling_num_samples < max_samples) {
+                polling_current_samples[polling_num_samples++] = pwr.current_mA;
+                Serial.printf("[MQ135] Corrente istantanea (polling): %.2f mA\n", pwr.current_mA);
+            }
+        #endif
 
         return data;
     }
