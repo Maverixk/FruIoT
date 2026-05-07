@@ -203,12 +203,7 @@ namespace mq135 {
         Serial.printf("[MQ135] raw=%d rs=%.3f kΩ ratio=%.5f r0=%.3f kΩ\n",
                       raw, rs, ratio, s_r0);
 
-        power::PowerData pwr = power::readINA219();
-        if (pwr.ok && polling_num_samples < max_samples) {
-            polling_current_samples[polling_num_samples++] = pwr.current_mA;
-        }
-
-         #if CURRENT_MONITOR == 1
+        #if CURRENT_MONITOR == 1
             power::PowerData pwr = power::readINA219();
             if (pwr.ok && polling_num_samples < max_samples) {
                 polling_current_samples[polling_num_samples++] = pwr.current_mA;

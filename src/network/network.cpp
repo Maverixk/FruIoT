@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include "ThingSpeak.h"
 #include "../include/secrets.h"
+#include "config.h"
 
 namespace network {
 
