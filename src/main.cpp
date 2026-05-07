@@ -84,7 +84,7 @@ void setup() {
 #endif
 
   // --- Invio dati a ThingSpeak ---
-  network::DataPacket packet = {(float)data.mq135Raw, data.mq135Ratio,
+  network::DataPacket packet = {data.mq135Raw,        data.mq135Ratio,
                                 data.temperatureC,    data.humidityPct,
                                 avg_warmup_current,   avg_polling_current};
   int response = network::send_via_wifi(packet);

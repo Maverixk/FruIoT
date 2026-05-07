@@ -6,7 +6,7 @@
 namespace network {
 
     struct DataPacket {
-        float mq135Raw;
+        int   mq135Raw;
         float mq135Ratio;
         float dht22Temp;
         float dht22Hum;

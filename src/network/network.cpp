@@ -10,7 +10,7 @@ namespace network {
 
     void init() {
         WiFi.mode(WIFI_STA);
-        WiFi.begin(WIFI_SSID_LUCA, WIFI_PASS_LUCA);
+        WiFi.begin(WIFI_SSID, WIFI_PASS);
         Serial.println("[network] WiFi avviato in background.");
     }
 
@@ -59,6 +59,6 @@ namespace network {
             ThingSpeak.setField(6, data.polling_current);
         #endif
 
-        return ThingSpeak.writeFields(SECRET_CH_ID_LUCA, SECRET_WRITE_APIKEY_LUCA);
+        return ThingSpeak.writeFields(SECRET_CH_ID, SECRET_WRITE_API);
     }
 }
