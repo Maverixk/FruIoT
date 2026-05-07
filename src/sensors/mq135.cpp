@@ -151,12 +151,14 @@ namespace mq135 {
                 Serial.printf("[MQ135]   %lu s rimanenti\n", remaining);
                 last_print = millis();
 
-                // Sensing dell'INA219 ad ogni iterazione del ciclo 
-                power::PowerData pwr = power::readINA219();
-                if (pwr.ok && warmup_num_samples < max_samples) {
-                    warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
-                    Serial.printf("[MQ135] Corrente istantanea (warm-up): %.2f mA\n", pwr.current_mA);
-                }
+                #if CURRENT_MONITOR == 1
+                    // Sensing dell'INA219 ad ogni iterazione del ciclo 
+                    power::PowerData pwr = power::readINA219();
+                    if (pwr.ok && warmup_num_samples < max_samples) {
+                        warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
+                        Serial.printf("[MQ135] Corrente istantanea (warm-up): %.2f mA\n", pwr.current_mA);
+                    }
+                #endif
             }
 
             delay(500); // ogni mezzo secondo controlla se è il momento di stampare l'aggiornamento, ma non intasare il buffer seriale con troppe stampe
@@ -289,11 +291,13 @@ namespace mq135 {
 
         Serial.printf("[MQ135] raw=%d rs=%.3f ratio=%.5f r0=%.3f\n", raw, rs, ratio, s_r0);
 
-        power::PowerData pwr = power::readINA219();
-        if (pwr.ok && polling_num_samples < max_samples) {
-            polling_current_samples[polling_num_samples++] = pwr.current_mA;
-            Serial.printf("[MQ135] Corrente istantanea (polling): %.2f mA\n", pwr.current_mA);
-        }
+        #if CURRENT_MONITOR == 1
+            power::PowerData pwr = power::readINA219();
+            if (pwr.ok && polling_num_samples < max_samples) {
+                polling_current_samples[polling_num_samples++] = pwr.current_mA;
+                Serial.printf("[MQ135] Corrente istantanea (polling): %.2f mA\n", pwr.current_mA);
+            }
+        #endif
 
         return data;
     }

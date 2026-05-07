@@ -44,6 +44,8 @@
 #define WARMUP_SKIP   2
  
 #define MQ135_WARMUP_STRATEGY   0  // <-- cambia qui per i test
+
+#define CURRENT_MONITOR 0
  
 // Durate warm-up (ms)
 #define MQ135_WARMUP_FULL_MS    90000UL

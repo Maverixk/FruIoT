@@ -41,7 +41,7 @@ void setup() {
     // --- Fase 2: Connessione Wi-Fi ---
     network::init();
     network::connect_to_wifi();
-    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LINDA);
+    Serial.printf("[network] ESP32 successfully connected to %s.\n", WIFI_SSID_LUCA);
 
     // --- Fase 3: Inizializzazione e lettura sensori ---
 
@@ -73,34 +73,43 @@ void setup() {
         Serial.println("[main] ERRORE: lettura DHT22 fallita.");
     }
 
-    
-    // Calcola la corrente media durante il warm-up e il polling
-    float total_warmup_current = 0;
-    for (int i = 0; i < sensors::getWarmupNumSamples(); i++) {
-        total_warmup_current += sensors::getWarmupCurrentSample(i);
-    }
-    float avg_warmup_current = total_warmup_current / sensors::getWarmupNumSamples();
-    Serial.printf("[main] Corrente media durante warm-up: %.2f mA\n", avg_warmup_current);
+    #if CURRENT_MONITOR == 1
+        // Calcola la corrente media durante il warm-up e il polling
+        float total_warmup_current = 0;
+        for (int i = 0; i < sensors::getWarmupNumSamples(); i++) {
+            total_warmup_current += sensors::getWarmupCurrentSample(i);
+        }
+        float avg_warmup_current = total_warmup_current / sensors::getWarmupNumSamples();
+        Serial.printf("[main] Corrente media durante warm-up: %.2f mA\n", avg_warmup_current);
 
-    float total_polling_current = 0;
-    for (int i = 0; i < sensors::getPollingNumSamples(); i++) {
-        total_polling_current += sensors::getPollingCurrentSample(i);
-    }
-    float avg_polling_current = total_polling_current / sensors::getPollingNumSamples();
-    Serial.printf("[main] Corrente media durante polling: %.2f mA\n", avg_polling_current);
-
-
+        float total_polling_current = 0;
+        for (int i = 0; i < sensors::getPollingNumSamples(); i++) {
+            total_polling_current += sensors::getPollingCurrentSample(i);
+        }
+        float avg_polling_current = total_polling_current / sensors::getPollingNumSamples();
+        Serial.printf("[main] Corrente media durante polling: %.2f mA\n", avg_polling_current);
+    #endif
 
 
     // --- Fase 4: Invio dati a ThingSpeak --- 
-    network::DataPacket packet = {
-        (float)data.mq135Raw,
-        data.mq135CO2ppm, 
-        data.temperatureC,
-        data.humidityPct,
-        avg_warmup_current,
-        avg_polling_current
-    };
+    #if CURRENT_MONITOR == 1
+        network::DataPacket packet = {
+            (float)data.mq135Raw,
+            data.mq135CO2ppm, 
+            data.temperatureC,
+            data.humidityPct,
+            avg_warmup_current,
+            avg_polling_current
+        };
+    #else
+        network::DataPacket packet = {
+            (float)data.mq135Raw,
+            data.mq135CO2ppm,
+            data.temperatureC,
+            data.humidityPct
+        };
+    #endif
+
     int response = network::send_via_wifi(packet);
     if(response == 200) {
         Serial.println("[network] Data successfully delivered to ThingSpeak channel!");
