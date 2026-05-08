@@ -3,6 +3,7 @@
 
 // --- CONFIGURAZIONE GENERALE ---
 #define CURRENT_MONITOR 0  // 0 = disabilitato, 1 = abilitato (misura corrente istantanea durante il polling MQ135)
+#define USE_TRANSISTOR  0  // 0 = MQ135 sempre alimentato (workaround powerbank), 1 = controllato da transistor S8050
 
 // --- PINOUT SENSORI ---
 #define DHT_PIN         5  // Pin GPIO 5 per il DHT22 sulla scheda Heltec V3
@@ -19,7 +20,7 @@
 #define INA219_I2C_ADDR 0x40    // Indirizzo I2C default (A0=GND, A1=GND)
 
 // --- TIMING E SLEEP ---
-#define SLEEP_INTERVAL_MINUTES  5
+#define SLEEP_INTERVAL_MINUTES  20
 #define uS_TO_S_FACTOR 1000000ULL  // Fattore di conversione da microsecondi a secondi
 
 // =============================================================================
