@@ -19,7 +19,7 @@
 #define INA219_I2C_ADDR 0x40    // Indirizzo I2C default (A0=GND, A1=GND)
 
 // --- TIMING E SLEEP ---
-#define SLEEP_INTERVAL_MINUTES  60
+#define SLEEP_INTERVAL_MINUTES  5
 #define uS_TO_S_FACTOR 1000000ULL  // Fattore di conversione da microsecondi a secondi
 
 // =============================================================================
