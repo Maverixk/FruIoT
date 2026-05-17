@@ -7,3 +7,12 @@
 
 # Ignora il file con le password e le API Key
 include/secrets.h
+
+# Virtual environment
+model/
+
+# Jupyter Notebook auto-saves
+tinyml/.ipynb_checkpoints/
+
+# Temporary TFLite model conversion folder
+tinyml/temp_saved_model/
