@@ -10,6 +10,7 @@ namespace network {
         float mq135Ratio;
         float dht22Temp;
         float dht22Hum;
+        int   spoilage_status;
         float warmup_current;
         float polling_current;
     };

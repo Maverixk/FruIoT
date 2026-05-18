@@ -12,7 +12,7 @@ include/secrets.h
 model/
 
 # Jupyter Notebook auto-saves
-tinyml/.ipynb_checkpoints/
+src/tinyml/.ipynb_checkpoints/
 
 # Temporary TFLite model conversion folder
-tinyml/temp_saved_model/
+src/tinyml/temp_saved_model/

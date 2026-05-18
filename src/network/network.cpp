@@ -53,10 +53,11 @@ namespace network {
         ThingSpeak.setField(2, data.mq135Ratio);
         ThingSpeak.setField(3, data.dht22Temp);
         ThingSpeak.setField(4, data.dht22Hum);
+        ThingSpeak.setField(5, data.spoilage_status);
         
         #if CURRENT_MONITOR == 1
-            ThingSpeak.setField(5, data.warmup_current);
-            ThingSpeak.setField(6, data.polling_current);
+            ThingSpeak.setField(6, data.warmup_current);
+            ThingSpeak.setField(7, data.polling_current);
         #endif
 
         return ThingSpeak.writeFields(SECRET_CH_ID, SECRET_WRITE_API);

@@ -6,6 +6,7 @@
 #include "power/power.h"
 #include "secrets.h"
 #include "sensors/sensors.h"
+#include "tinyml/tinyml.h"
 
 void setup() {
 
@@ -15,6 +16,12 @@ void setup() {
   Serial.println("\n=============================");
   Serial.println("  FruIoT - Avvio sistema");
   Serial.println("=============================\n");
+
+if (!init_model()) {
+    Serial.println("[main] ERROR: TinyML loading failed!");
+  } else {
+    Serial.println("[main] TinyML model loaded and ready.");
+  }
 
 #if USE_TRANSISTOR == 1
   // --- Transistor S8050: accende l'MQ135 ---
@@ -85,10 +92,21 @@ void setup() {
   }
 #endif
 
+  // Local inference with TinyML
+  int status = predict_status(data);
+  
+  Serial.print("[main] Spoilage status prediction: ");
+  if (status == 0) Serial.println("0 - UNRIPE");
+  else if (status == 1) Serial.println("1 - MATURE");
+  else if (status == 2) Serial.println("2 - RUINED");
+  else Serial.println("Error in prediction (-1)");
+
+
   // --- Invio dati a ThingSpeak ---
   network::DataPacket packet = {data.mq135Raw,        data.mq135Ratio,
                                 data.temperatureC,    data.humidityPct,
-                                avg_warmup_current,   avg_polling_current};
+                                status,               avg_warmup_current,
+                                avg_polling_current};
   int response = network::send_via_wifi(packet);
   if (response == 200) {
     Serial.println(
