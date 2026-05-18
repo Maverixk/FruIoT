@@ -28,9 +28,8 @@ namespace {
     TfLiteTensor* input = nullptr;
     TfLiteTensor* output = nullptr;
 
-    // Use RTC_DATA_ATTR if you want the memory to survive deep sleep!
-    RTC_DATA_ATTR uint8_t tensor_arena[4 * 1024]; 
-    RTC_DATA_ATTR bool model_initialized = false;
+    uint8_t tensor_arena[4 * 1024]; 
+    bool model_initialized = false;
 }
 
 bool init_model() {
