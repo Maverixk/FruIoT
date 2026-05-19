@@ -3,7 +3,6 @@
 #include "config.h"
 #include "display/display.h"
 #include "network/network.h"
-#include "power/power.h"
 #include "secrets.h"
 #include "sensors/sensors.h"
 #include "tinyml/tinyml.h"
@@ -17,26 +16,22 @@ void setup() {
   Serial.println("  FruIoT - Avvio sistema");
   Serial.println("=============================\n");
 
-if (!init_model()) {
+  if (!init_model()) {
     Serial.println("[main] ERROR: TinyML loading failed!");
   } else {
     Serial.println("[main] TinyML model loaded and ready.");
   }
 
 #if USE_TRANSISTOR == 1
-  // --- Transistor S8050: accende l'MQ135 ---
+  // --- Boost converter (XL6009 + MQ-135): accensione tramite S8050 ---
   pinMode(TRANSISTOR_PIN, OUTPUT);
   digitalWrite(TRANSISTOR_PIN, HIGH);
-  Serial.println("[main] Transistor APERTO: MQ135 alimentato.");
+  Serial.println("[main] Boost converter ON (GPIO6 HIGH): MQ-135 alimentato.");
 #endif
 
   // --- Inizializzazione moduli ---
   display::init();
   display::showMessage("FruIoT", "Welcome to the final show...");
-
-#if CURRENT_MONITOR == 1
-  power::init();
-#endif
 
   // --- WiFi: avvia connessione in background ---
   network::init();
@@ -66,35 +61,9 @@ if (!init_model()) {
     Serial.println("[main] ERRORE: lettura DHT22 fallita.");
   }
 
-  // --- Corrente media warm-up ---
-  float avg_warmup_current = 0;
-#if CURRENT_MONITOR == 1
-  if (sensors::getWarmupNumSamples() > 0) {
-    float total = 0;
-    for (int i = 0; i < sensors::getWarmupNumSamples(); i++)
-      total += sensors::getWarmupCurrentSample(i);
-    avg_warmup_current = total / sensors::getWarmupNumSamples();
-    Serial.printf("[main] Corrente media warm-up: %.2f mA\n",
-                  avg_warmup_current);
-  }
-#endif
-
-  // --- Corrente media polling ---
-  float avg_polling_current = 0;
-#if CURRENT_MONITOR == 1
-  if (sensors::getPollingNumSamples() > 0) {
-    float total = 0;
-    for (int i = 0; i < sensors::getPollingNumSamples(); i++)
-      total += sensors::getPollingCurrentSample(i);
-    avg_polling_current = total / sensors::getPollingNumSamples();
-    Serial.printf("[main] Corrente media polling: %.2f mA\n",
-                  avg_polling_current);
-  }
-#endif
-
   // Local inference with TinyML
   int status = predict_status(data);
-  
+
   Serial.print("[main] Spoilage status prediction: ");
   if (status == 0) Serial.println("0 - UNRIPE");
   else if (status == 1) Serial.println("1 - MATURE");
@@ -103,10 +72,9 @@ if (!init_model()) {
 
 
   // --- Invio dati a ThingSpeak ---
-  network::DataPacket packet = {data.mq135Raw,        data.mq135Ratio,
-                                data.temperatureC,    data.humidityPct,
-                                status,               avg_warmup_current,
-                                avg_polling_current};
+  network::DataPacket packet = {data.mq135Raw,     data.mq135Ratio,
+                                data.temperatureC, data.humidityPct,
+                                status};
   int response = network::send_via_wifi(packet);
   if (response == 200) {
     Serial.println(
@@ -126,8 +94,11 @@ if (!init_model()) {
 
 #if USE_TRANSISTOR == 1
   digitalWrite(TRANSISTOR_PIN, LOW);
-  Serial.println("[main] Transistor CHIUSO: MQ135 spento.");
+  Serial.println("[main] Boost converter OFF (GPIO6 LOW): MQ-135 spento.");
 #endif
+
+  digitalWrite(DHT_VCC_PIN, LOW);
+  Serial.println("[main] DHT22 VCC OFF (GPIO47 LOW).");
 
   Serial.println("[main] Entro in deep sleep...");
   Serial.flush();

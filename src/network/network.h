@@ -11,8 +11,6 @@ namespace network {
         float dht22Temp;
         float dht22Hum;
         int   spoilage_status;
-        float warmup_current;
-        float polling_current;
     };
 
     void init();

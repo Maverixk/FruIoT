@@ -24,11 +24,6 @@ namespace sensors {
     void resetMQ135Calibration();
     void forceMQ135R0(float r0);
 
-    int getWarmupNumSamples();
-    int getPollingNumSamples();
-    float getWarmupCurrentSample(int index);
-    float getPollingCurrentSample(int index);
-
 } // namespace sensors
 
 #endif // SENSORS_H

@@ -15,9 +15,4 @@ Data poll();
 void resetCalibration();
 void forceR0(float r0);
 
-int getWarmupNumSamples();
-int getPollingNumSamples();
-float getWarmupCurrentSample(int index);
-float getPollingCurrentSample(int index);
-
 } // namespace mq135
