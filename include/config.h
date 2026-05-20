@@ -2,7 +2,6 @@
 #define CONFIG_H
 
 // --- CONFIGURAZIONE GENERALE ---
-#define CURRENT_MONITOR 0  // 0 = disabilitato, 1 = abilitato (misura corrente istantanea durante il polling MQ135)
 #define USE_TRANSISTOR  0  // 0 = MQ135 sempre alimentato (workaround powerbank), 1 = controllato da transistor S8050
 
 // --- BLE PROVISIONING ---
@@ -27,18 +26,17 @@
 #define POP_LENGTH 12
 
 // --- PINOUT SENSORI ---
-#define DHT_PIN         5  // Pin GPIO 5 per il DHT22 sulla scheda Heltec V3
+#define DHT_PIN         5   // DHT22 DATA (GPIO5)
+#define DHT_VCC_PIN     47  // DHT22 VCC: HIGH = alimentato, LOW = spento (recovery lock-up)
 #define DHT_TYPE        DHT22
 
-#define MQ135_PIN       4   // Pin ADC (GPIO4) per la scheda Heltec V3
+#define MQ135_PIN       4   // MQ-135 AOUT su ADC1_CH3 (GPIO4, safe con WiFi attivo)
 
-// --- TRANSISTOR S8050 (alimentazione MQ135) ---
-#define TRANSISTOR_PIN  3   // GPIO3: HIGH = MQ135 alimentato, LOW = MQ135 spento
-
-// --- INA219 (Power Monitor) ---
-#define INA219_SDA      6       // Pin SDA per il bus I2C dell'INA219
-#define INA219_SCL      7       // Pin SCL per il bus I2C dell'INA219
-#define INA219_I2C_ADDR 0x40    // Indirizzo I2C default (A0=GND, A1=GND)
+// --- TRANSISTOR S8050 (switch boost converter XL6009 + MQ-135) ---
+// 0 = bypass (MQ-135 sempre alimentato dal rail 5V, nessun controllo)
+// 1 = controllato da S8050 (HIGH = boost ON, LOW = boost OFF prima del deep sleep)
+#define USE_TRANSISTOR  0
+#define TRANSISTOR_PIN  6   // GPIO6 → base S8050: HIGH = XL6009+MQ135 ON, LOW = boost OFF
 
 // --- TIMING E SLEEP ---
 #define SLEEP_INTERVAL_MINUTES  10

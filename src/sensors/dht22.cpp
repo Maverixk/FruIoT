@@ -8,6 +8,9 @@ static DHT dht(DHT_PIN, DHT_TYPE);
 namespace dht22 {
 
     void init() {
+        pinMode(DHT_VCC_PIN, OUTPUT);
+        digitalWrite(DHT_VCC_PIN, HIGH); // alimenta il DHT22
+        delay(1500);                     // stabilizzazione VCC prima di begin()
         dht.begin();
         delay(2000); // DHT22 richiede 2s prima della prima lettura
         Serial.println("[DHT22] Pronto.");

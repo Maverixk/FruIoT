@@ -1,6 +1,5 @@
 #include "mq135.h"
 #include "config.h"
-#include "power/power.h"
 #include <Arduino.h>
 #include <Preferences.h>
 
@@ -10,13 +9,6 @@ namespace mq135 {
     static float       s_r0          = -1.0f;  // R0 calibrato (kΩ), -1 = non disponibile
     static bool        s_r0_from_nvs = false; // true se R0 letto da NVS
     static Preferences s_prefs;
-
-    // Buffer per campioni di corrente INA219 durante warmup e polling
-    const int max_samples = 100;
-    float warmup_current_samples[max_samples];
-    float polling_current_samples[max_samples];
-    int warmup_num_samples = 0;
-    int polling_num_samples = 0;
 
     // ─────────────────────────────────────────────────────────────────────────
     // Filtro a mediana: raccoglie N campioni ADC, li ordina e restituisce
@@ -87,7 +79,6 @@ namespace mq135 {
     // Warm-up: mantiene il sensore acceso per duration_ms.
     // L'elemento riscaldante dell'MQ135 deve raggiungere la temperatura
     // operativa prima che le letture siano affidabili.
-    // Durante l'attesa campiona la corrente dall'INA219 ogni 5 secondi.
     // ─────────────────────────────────────────────────────────────────────────
     static void doWarmup(unsigned long duration_ms) {
         if (duration_ms == 0) return;
@@ -99,15 +90,6 @@ namespace mq135 {
                 unsigned long remaining = (duration_ms - (millis() - start)) / 1000;
                 Serial.printf("[MQ135]   %lu s rimanenti\n", remaining);
                 last_print = millis();
-
-                #if CURRENT_MONITOR == 1
-                    // Sensing dell'INA219 ad ogni iterazione del ciclo 
-                    power::PowerData pwr = power::readINA219();
-                    if (pwr.ok && warmup_num_samples < max_samples) {
-                        warmup_current_samples[warmup_num_samples++] = pwr.current_mA;
-                        Serial.printf("[MQ135] Corrente istantanea (warm-up): %.2f mA\n", pwr.current_mA);
-                    }
-                #endif
             }
             delay(500);
         }
@@ -181,7 +163,6 @@ namespace mq135 {
     }
 
     // Legge il sensore: raw ADC (mediana) → RS → ratio RS/R0.
-    // Campiona anche la corrente INA219 durante la lettura.
     Data poll() {
         Data data{};
 
@@ -202,14 +183,6 @@ namespace mq135 {
 
         Serial.printf("[MQ135] raw=%d rs=%.3f kΩ ratio=%.5f r0=%.3f kΩ\n",
                       raw, rs, ratio, s_r0);
-
-        #if CURRENT_MONITOR == 1
-            power::PowerData pwr = power::readINA219();
-            if (pwr.ok && polling_num_samples < max_samples) {
-                polling_current_samples[polling_num_samples++] = pwr.current_mA;
-                Serial.printf("[MQ135] Corrente istantanea (polling): %.2f mA\n", pwr.current_mA);
-            }
-        #endif
 
         return data;
     }
@@ -234,17 +207,6 @@ namespace mq135 {
         s_r0_from_nvs = true;
         saveR0toNVS(r0);
         Serial.printf("[MQ135] R0 forzato manualmente: %.2f kΩ\n", r0);
-    }
-
-    int getWarmupNumSamples() { return warmup_num_samples; }
-    int getPollingNumSamples() { return polling_num_samples; }
-    float getWarmupCurrentSample(int index) {
-        if (index < 0 || index >= warmup_num_samples) return 0.0f;
-        return warmup_current_samples[index];
-    }
-    float getPollingCurrentSample(int index) {
-        if (index < 0 || index >= polling_num_samples) return 0.0f;
-        return polling_current_samples[index];
     }
 
 } // namespace mq135

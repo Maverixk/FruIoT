@@ -29,9 +29,4 @@ namespace sensors {
     void resetMQ135Calibration() { mq135::resetCalibration(); }
     void forceMQ135R0(float r0)  { mq135::forceR0(r0); }
 
-    int getWarmupNumSamples()            { return mq135::getWarmupNumSamples(); }
-    int getPollingNumSamples()           { return mq135::getPollingNumSamples(); }
-    float getWarmupCurrentSample(int i)  { return mq135::getWarmupCurrentSample(i); }
-    float getPollingCurrentSample(int i) { return mq135::getPollingCurrentSample(i); }
-
 }
