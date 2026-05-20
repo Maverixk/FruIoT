@@ -14,6 +14,11 @@ namespace display {
     // Mostra i dati dei sensori sul display
     void showSensorData(float temp, float humidity, float ratio);
 
+    // Mostra un QR code di provisioning sul display.
+    // Il payload deve essere la stringa che l'app ESP BLE Provisioning si aspetta:
+    // {"ver":"v1","name":"PROV_FruIoT","pop":"fruiot1234","transport":"ble"}
+    void showProvisioningQR(const String& device_name, const String& pop);
+
     // Spegne il display (prima del deep sleep)
     void off();
 

@@ -5,6 +5,27 @@
 #define CURRENT_MONITOR 0  // 0 = disabilitato, 1 = abilitato (misura corrente istantanea durante il polling MQ135)
 #define USE_TRANSISTOR  0  // 0 = MQ135 sempre alimentato (workaround powerbank), 1 = controllato da transistor S8050
 
+// --- BLE PROVISIONING ---
+// 0 = WiFi credentials hardcoded da secrets.h (modalità legacy)
+// 1 = WiFi credentials gestite via NVS + BLE Provisioning. Se NVS è vuota o
+//     le credenziali non funzionano (WiFi cambiato), avvia automaticamente
+//     un nuovo provisioning via app "ESP BLE Provisioning".
+#define USE_BLE_PROVISIONING 1
+
+// Timeout (ms) di attesa connessione WiFi prima di considerare le credenziali obsolete.
+// Se scade e USE_BLE_PROVISIONING=1, scatta il fallback con nuovo provisioning.
+#define WIFI_CONNECT_TIMEOUT_MS 20000UL
+
+// Timeout (ms) della modalità BLE Provisioning. Trascorso questo tempo senza che
+// l'utente completi il setup, l'ESP esce dalla modalità provisioning e procede
+// (o fallisce). Limita la finestra di attacco: un attaccante con accesso BLE
+// avrebbe a disposizione solo questo tempo per tentare brute force del PoP.
+#define BLE_PROVISIONING_TIMEOUT_MS 300000UL  // 5 minuti
+
+// Lunghezza del PoP generato randomicamente al primo boot (caratteri alfanumerici).
+// 12 caratteri = ~71 bit di entropia, infattibile da brute-forzare in 5 minuti.
+#define POP_LENGTH 12
+
 // --- PINOUT SENSORI ---
 #define DHT_PIN         5  // Pin GPIO 5 per il DHT22 sulla scheda Heltec V3
 #define DHT_TYPE        DHT22
@@ -20,7 +41,7 @@
 #define INA219_I2C_ADDR 0x40    // Indirizzo I2C default (A0=GND, A1=GND)
 
 // --- TIMING E SLEEP ---
-#define SLEEP_INTERVAL_MINUTES  20
+#define SLEEP_INTERVAL_MINUTES  10
 #define uS_TO_S_FACTOR 1000000ULL  // Fattore di conversione da microsecondi a secondi
 
 // =============================================================================
@@ -37,7 +58,7 @@
 #define WARMUP_SHORT  1
 #define WARMUP_SKIP   2
 
-#define MQ135_WARMUP_STRATEGY   0  // <-- cambia qui per i test
+#define MQ135_WARMUP_STRATEGY   2  // <-- cambia qui per i test
 
 // Durate warm-up (ms)
 #define MQ135_WARMUP_FULL_MS    90000UL

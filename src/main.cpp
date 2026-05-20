@@ -4,8 +4,10 @@
 #include "display/display.h"
 #include "network/network.h"
 #include "power/power.h"
+#include "provisioning/provisioning.h"
 #include "secrets.h"
 #include "sensors/sensors.h"
+#include "thingsboard/thingsboard.h"
 #include "tinyml/tinyml.h"
 
 void setup() {
@@ -16,6 +18,11 @@ void setup() {
   Serial.println("\n=============================");
   Serial.println("  FruIoT - Avvio sistema");
   Serial.println("=============================\n");
+
+  // ⚠️ TEMPORANEO: forza re-provisioning cancellando le credenziali WiFi da NVS.
+  // Decommenta questa riga se vuoi tornare in modalità provisioning al prossimo boot.
+  // NOTA: R0 (namespace "fruiot") NON viene toccato, resta calibrato.
+  // provisioning::clearWiFiCredentials();
 
 if (!init_model()) {
     Serial.println("[main] ERROR: TinyML loading failed!");
@@ -48,7 +55,10 @@ if (!init_model()) {
   sensors::init();
 
   // --- WiFi: verifica connessione (dopo warmup è già connesso) ---
-  network::await_wifi();
+  network::await_wifi(WIFI_CONNECT_TIMEOUT_MS);
+
+  // Inizializza ThingsBoard MQTT client (carica token da NVS o secrets.h)
+  //thingsboard::init();
   sensors::SensorData data = sensors::poll();
 
   // --- Stampa dati ---
@@ -93,8 +103,11 @@ if (!init_model()) {
 #endif
 
   // Local inference with TinyML
+  int64_t t0 = esp_timer_get_time();
   int status = predict_status(data);
-  
+  int64_t inference_time_us = esp_timer_get_time() - t0;
+
+  Serial.printf("[main] Inference time: %lld us\n", inference_time_us);
   Serial.print("[main] Spoilage status prediction: ");
   if (status == 0) Serial.println("0 - UNRIPE");
   else if (status == 1) Serial.println("1 - MATURE");
@@ -106,7 +119,7 @@ if (!init_model()) {
   network::DataPacket packet = {data.mq135Raw,        data.mq135Ratio,
                                 data.temperatureC,    data.humidityPct,
                                 status,               avg_warmup_current,
-                                avg_polling_current};
+                                avg_polling_current,   (float)inference_time_us};
   int response = network::send_via_wifi(packet);
   if (response == 200) {
     Serial.println(
@@ -116,6 +129,10 @@ if (!init_model()) {
         "[network] ThingSpeak channel update failed with HTTP error code " +
         String(response));
   }
+
+  // --- ThingsBoard: invio alert solo per stati critici (status >= 1) ---
+  // L'alert scatena una Rule Chain sul cloud che inoltra una notifica Telegram.
+  //thingsboard::publish_alert(status, data);
 
   // --- Mostra i dati sul display OLED ---
   display::showSensorData(data.temperatureC, data.humidityPct, data.mq135Ratio);

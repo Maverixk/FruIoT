@@ -13,6 +13,7 @@ namespace network {
         int   spoilage_status;
         float warmup_current;
         float polling_current;
+        float inference_time_us;
     };
 
     void init();
