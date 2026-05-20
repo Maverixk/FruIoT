@@ -28,15 +28,7 @@ namespace {
     TfLiteTensor* input = nullptr;
     TfLiteTensor* output = nullptr;
 
-    // Tensor arena rimane in RTC RAM per sopravvivere al deep sleep
-    // (è solo memoria buffer, non contiene puntatori).
-    RTC_DATA_ATTR uint8_t tensor_arena[4 * 1024];
-
-    // Il flag invece NON va in RTC: i puntatori sottostanti (interpreter, input,
-    // output) sono in RAM normale e vengono persi al deep sleep. Tenere questo
-    // flag in RTC causerebbe init_model() a saltare la reinizializzazione,
-    // lasciando i puntatori a nullptr e provocando crash in predict_status().
-    // Forzare la reinit ad ogni wake costa ~200ms ma garantisce coerenza.
+    uint8_t tensor_arena[4 * 1024]; 
     bool model_initialized = false;
 }
 
